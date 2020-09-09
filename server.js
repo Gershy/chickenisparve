@@ -11,7 +11,7 @@ let [ host, port ] = process.argv[2].split(':');
     res.end(content);
   };
   let responses = {
-    icon: async res => serve(res, await fs.promises.readFile(path.join(__dirname, 'asset', 'iamge', 'favicon.ico')), 'image/x-icon'),
+    icon: async res => serve(res, await fs.promises.readFile(path.join(__dirname, 'asset', 'image', 'favicon.ico')), 'image/x-icon'),
     html: async res => serve(res, await fs.promises.readFile(path.join(__dirname, 'main.html')), 'text/html'),
     css: async res => serve(res, await fs.promises.readFile(path.join(__dirname, 'main.css')), 'text/css'),
     js: async res => serve(res, await fs.promises.readFile(path.join(__dirname, 'main.js')), 'text/javascript'),
