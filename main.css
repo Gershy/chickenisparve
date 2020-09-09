@@ -10,3 +10,10 @@ body {
   background-position: center;
   background-repeat: no-repeat;
 }
+.text {
+  position: relative;
+  width: 100%; top: 20%;
+  font-size: 35px;
+  color: #ffffff;
+  text-align: center;
+}
