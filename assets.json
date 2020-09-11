@@ -5,6 +5,7 @@
   "js":   [ "text/javascript",  "main.js" ],
   
   "icon": [ "image/x-icon",     "asset", "image", "favicon.ico" ],
-  "bg":   [ "image/png",        "asset", "image", "bg.png" ]
+  "bg":   [ "image/png",        "asset", "image", "bg.png" ],
+  "font": [ "font/ttf",         "asset", "font", "cip.ttf" ]
   
 }
