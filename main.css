@@ -3,35 +3,45 @@ body, html {
   left: 0; top: 0; width: 100%; height: 100%;
   overflow: hidden;
   margin: 0; padding: 0;
+  color: #ffffff;
 }
 body {
   background-image: url('bg');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+  
+  display: flex;
+  flex-wrap: nowrap;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-evenly;
 }
-.quote.main {
-  position: absolute;
-  box-sizing: border-box;
-  padding: 10px;
+body > .quote.main {
   width: 80%; left: 10%; top: 17%;
   font-size: 180%;
-  color: #ffffff;
+  box-sizing: border-box;
+  padding: 10px;
   background-color: rgba(0, 0, 0, 0.15);
   border-radius: 8px;
 }
-.quote.main > .text {
+body > .quote.main > .text {
   text-align: left;
 }
-.quote.main > .cite {
+body > .quote.main > .cite {
   text-align: right;
   font-size: 84%;
   margin-top: 20px;
 }
-.text {
-  position: relative;
-  width: 100%; top: 20%;
-  font-size: 35px;
-  color: #ffffff;
+body > .mission {
+  font-size: 350%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  box-sizing: border-box;
+  margin: 0 20px;
   text-align: center;
+  text-shadow: 0 0 5px #000;
+  opacity: 0.62;
+  margin-bottom: 20%;
 }
