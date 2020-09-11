@@ -1,11 +1,13 @@
 {
   
-  "":     [ "text/html",        "main.html" ],
-  "css":  [ "text/css",         "main.css" ],
-  "js":   [ "text/javascript",  "main.js" ],
+  "":             [ "text/html",        "main.html" ],
+  "html":         [ "text/html",        "main.html" ],
+  "css":          [ "text/css",         "main.css" ],
+  "js":           [ "text/javascript",  "main.js" ],
   
-  "icon": [ "image/x-icon",     "asset", "image", "favicon.ico" ],
-  "bg":   [ "image/png",        "asset", "image", "bg.png" ],
-  "font": [ "font/ttf",         "asset", "font", "cip.ttf" ]
+  "favicon.ico":  [ "image/x-icon",     "asset", "image", "favicon.ico" ],
+  "icon":         [ "image/x-icon",     "asset", "image", "favicon.ico" ],
+  "bg":           [ "image/png",        "asset", "image", "bg.png" ],
+  "font":         [ "font/ttf",         "asset", "font", "cip.ttf" ]
   
 }
