@@ -17,8 +17,6 @@ let [ host, port ] = (process.argv[2] || 'localhost:80').split(':');
     if (!fileCache.has(fp)) {
       fileCache.set(fp, fs.promises.readFile(path.join(__dirname, fp)));
       setTimeout(() => fileCache.delete(fp), cacheMs);
-    } else {
-      console.log('Got cached:', fp);
     }
     return fileCache.get(fp);
   };
