@@ -50,7 +50,7 @@ body > .mission {
   box-sizing: border-box;
   margin: 0 20px;
   text-align: center;
-  text-shadow: 0 0 5px #000;
-  opacity: 0.62;
+  text-shadow: 0 0 9px #000;
+  opacity: 0.67;
   margin-bottom: 10%;
 }
