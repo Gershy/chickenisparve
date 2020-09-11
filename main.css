@@ -11,6 +11,7 @@ body, html {
   color: #ffffff;
   font-family: cip;
 }
+html { background-color: #ffffff; }
 body {
   background-image: url('bg');
   background-size: cover;
@@ -22,6 +23,8 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: space-evenly;
+  
+  transition: opacity 750ms linear;
 }
 body > .quote.main {
   width: 80%; left: 10%; top: 17%;
