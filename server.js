@@ -34,7 +34,7 @@ let [ host, port ] = (process.argv[2] || 'localhost:80').split(':');
     
     try {
       
-      let servables = JSON.parse(await readFile('assets.json'));
+      let servables = JSON.parse(await readFile('asset', 'assets.json'));
       let [ contentType=null, ...fp ] = servables[req.url.slice(1)] || [];
       if (!contentType) throw new Error(`Unknown asset: ${req.url}`);
       serveReq(res, 200, await readFile(...fp), contentType);

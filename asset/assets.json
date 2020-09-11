@@ -1,0 +1,13 @@
+{
+  
+  "":             [ "text/html",        "asset", "main", "main.html" ],
+  "html":         [ "text/html",        "asset", "main", "main.html" ],
+  "css":          [ "text/css",         "asset", "main", "main.css" ],
+  "js":           [ "text/javascript",  "asset", "main", "main.js" ],
+  
+  "favicon.ico":  [ "image/x-icon",     "asset", "image", "favicon.ico" ],
+  "icon":         [ "image/x-icon",     "asset", "image", "favicon.ico" ],
+  "bg":           [ "image/png",        "asset", "image", "bg2.png" ],
+  "font":         [ "font/ttf",         "asset", "font", "cip.ttf" ]
+  
+}
