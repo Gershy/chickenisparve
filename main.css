@@ -10,6 +10,24 @@ body {
   background-position: center;
   background-repeat: no-repeat;
 }
+.quote.main {
+  position: absolute;
+  box-sizing: border-box;
+  padding: 10px;
+  width: 80%; left: 10%; top: 17%;
+  font-size: 180%;
+  color: #ffffff;
+  background-color: rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
+}
+.quote.main > .text {
+  text-align: left;
+}
+.quote.main > .cite {
+  text-align: right;
+  font-size: 84%;
+  margin-top: 20px;
+}
 .text {
   position: relative;
   width: 100%; top: 20%;

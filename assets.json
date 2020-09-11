@@ -1,0 +1,10 @@
+{
+  
+  "":     [ "text/html",        "main.html" ],
+  "css":  [ "text/css",         "main.css" ],
+  "js":   [ "text/javascript",  "main.js" ],
+  
+  "icon": [ "image/x-icon",     "asset", "image", "favicon.ico" ],
+  "bg":   [ "image/png",        "asset", "image", "bg.png" ]
+  
+}
