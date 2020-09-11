@@ -3,9 +3,24 @@ let [ host, port ] = (process.argv[2] || 'localhost:80').split(':');
 
 (async () => {
   
+  // Send response
   let serve = (res, status, content, type) => {
     res.writeHead(status, { 'Content-Type': type, 'Content-Length': Buffer.byteLength(content) });
     res.end(content);
+  };
+  
+  // Read (potentially cached) file
+  let cacheMs = 2000;
+  let fileCache = new Map();
+  let readFile = (...fp) => {
+    fp = path.join(...fp);
+    if (!fileCache.has(fp)) {
+      fileCache.set(fp, fs.promises.readFile(path.join(__dirname, fp)));
+      setTimeout(() => fileCache.delete(fp), cacheMs);
+    } else {
+      console.log('Got cached:', fp);
+    }
+    return fileCache.get(fp);
   };
   
   http.createServer(async (req, res) => {
@@ -21,10 +36,10 @@ let [ host, port ] = (process.argv[2] || 'localhost:80').split(':');
     
     try {
       
-      let servables = JSON.parse(await fs.promises.readFile(path.join(__dirname, 'assets.json')));
+      let servables = JSON.parse(await readFile('assets.json'));
       let [ contentType=null, ...fp ] = servables[req.url.slice(1)] || [];
       if (!contentType) throw new Error(`Unknown asset: ${req.url}`);
-      serveReq(res, 200, await fs.promises.readFile(path.join(__dirname, ...fp)), contentType);
+      serveReq(res, 200, await readFile(...fp), contentType);
       
     } catch(err) {
       
