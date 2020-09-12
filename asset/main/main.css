@@ -13,17 +13,17 @@ body, html {
 }
 html { background-color: #ffffff; }
 body {
-  background-image: url('bg');
+  background-image: url('bg2');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  
+
   display: flex;
   flex-wrap: nowrap;
   flex-direction: column;
   align-items: center;
   justify-content: space-evenly;
-  
+
   transition: opacity 750ms linear;
 }
 body > .quote.main {
@@ -31,8 +31,7 @@ body > .quote.main {
   font-size: 180%;
   box-sizing: border-box;
   padding: 10px;
-  background-color: rgba(0, 0, 0, 0.15);
-  border-radius: 8px;
+  text-shadow: black 0em 0em 1em;
 }
 body > .quote.main > .text {
   text-align: left;
