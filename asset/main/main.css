@@ -13,7 +13,7 @@ body, html {
 }
 html { background-color: #ffffff; }
 body {
-  background-image: url('bg2');
+  background-image: url('bg');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
