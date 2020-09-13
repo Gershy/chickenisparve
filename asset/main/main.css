@@ -62,7 +62,8 @@ body { transition: opacity 750ms linear; }
 }
 
 .second > .hebrew {
-  margin-left: 20px;
+  position: relative;
+  padding: 10px 0 10px 20px;
   font-size: 130%;
 }
 .second > .english {
