@@ -22,9 +22,14 @@ window.addEventListener('load', () => {
     let curPage = pages[pageInd];
     let otherPage = pages[pageInd + ((focusAmt > 0) ? +1 : -1)] || null;
     
-    for (let page of pages) { page.style.opacity = '0'; page.style.zIndex = '2'; }
+    for (let page of pages) {
+      page.style.opacity = '0';
+      page.style.zIndex = '2';
+      page.style.pointerEvents = 'none';
+    }
     curPage.style.opacity = '1';
     curPage.style.zIndex = '1';
+    curPage.style.pointerEvents = 'all';
     
   };
   
