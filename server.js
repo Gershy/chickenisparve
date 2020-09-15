@@ -1,14 +1,14 @@
-let [ http, fs, path ] = [ 'http', 'fs', 'path' ].map(require);
+let [ http, https, fs, path ] = [ 'http', 'https', 'fs', 'path' ].map(require);
 let [ host, port ] = (process.argv[2] || 'localhost:80').split(':');
 
 (async () => {
-  
+
   // Send response
   let serve = (res, status, content, type) => {
     res.writeHead(status, { 'Content-Type': type, 'Content-Length': Buffer.byteLength(content) });
     res.end(content);
   };
-  
+
   // Read (potentially cached) file
   let cacheMs = 2000;
   let fileCache = new Map();
@@ -20,9 +20,14 @@ let [ host, port ] = (process.argv[2] || 'localhost:80').split(':');
     }
     return fileCache.get(fp);
   };
-  
-  http.createServer(async (req, res) => {
-    
+
+  const options = {
+    key: fs.readFileSync("/etc/letsencrypt/live/chickenisparve.org/privkey.pem"),
+    cert: fs.readFileSync("/etc/letsencrypt/live/chickenisparve.org/fullchain.pem")
+  };
+
+  https.createServer(options, async (req, res) => {
+
     let reqMsg = [];
     let addReqMsg = ln => reqMsg.push(...ln.split('\n'));
     let serveReq = (...args) => {
@@ -31,23 +36,29 @@ let [ host, port ] = (process.argv[2] || 'localhost:80').split(':');
       console.log('');
       serve(...args);
     };
-    
+
     try {
-      
+
       let servables = JSON.parse(await readFile('asset', 'assets.json'));
       let [ contentType=null, ...fp ] = servables[req.url.slice(1)] || [];
       if (!contentType) throw new Error(`Unknown asset: ${req.url}`);
       serveReq(res, 200, await readFile(...fp), contentType);
-      
+
     } catch(err) {
-      
+
       addReqMsg(`Error occurred: ${err.stack}`);
       serveReq(res, 400, 'Your request is as invalid as the assertion that chicken is fleishig', 'text/plain');
-      
-    }
-    
-  }).listen(port, host);
-  console.log(`Listening on ${host}:${port}`);
-  
-})();
 
+    }
+
+  }).listen(port, host);
+
+  // Redirect from http port 80 to https
+  http.createServer(function (req, res) {
+      res.writeHead(301, { "Location": "https://" + req.headers['host'] + req.url });
+      res.end();
+  }).listen(80);
+
+  console.log(`Listening on ${host}:${port}`);
+
+})();
