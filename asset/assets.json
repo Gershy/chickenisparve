@@ -7,7 +7,7 @@
 
   "favicon.ico":  [ "image/x-icon",     "asset", "image", "favicon.ico" ],
   "icon":         [ "image/x-icon",     "asset", "image", "favicon.ico" ],
-  "bg":           [ "image/png",        "asset", "image", "bg.png" ],
+  "bg":           [ "image/jpeg",       "asset", "image", "bg.jpg" ],
   "paperBg":      [ "image/jpeg",       "asset", "image", "paperBg.jpg" ],
   "font":         [ "font/ttf",         "asset", "font", "cip.ttf" ]
 
