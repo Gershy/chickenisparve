@@ -8,7 +8,7 @@
   "favicon.ico":  [ "image/x-icon",     "asset", "image", "favicon.ico" ],
   "icon":         [ "image/x-icon",     "asset", "image", "favicon.ico" ],
   "bg":           [ "image/png",        "asset", "image", "bg.png" ],
-  "paperBg":      [ "image/jpeg",       "asset", "image", "paperBg.jpg" ],
+  "paperBg":      [ "image/jpeg",       "asset", "image", "torahScroll.png" ],
   "font":         [ "font/ttf",         "asset", "font", "cip.ttf" ]
 
 }
