@@ -116,6 +116,7 @@ body { transition: opacity 750ms linear; }
   left: 0; top: 50%;
   font-size: 120%;
 }
+.gematria > .sum > .item:first-child::before { content: none; }
 .gematria .item > .hebrew { display: inline-block; min-width: 2.5em; }
 .gematria .item > .english { display: inline-block; min-width: 6.5em; }
 .gematria .item > .number {
