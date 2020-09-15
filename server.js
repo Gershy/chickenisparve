@@ -1,4 +1,4 @@
-let [ https, fs, path ] = [ 'https', 'fs', 'path' ].map(require);
+let [ http, https, fs, path ] = [ 'http', 'https', 'fs', 'path' ].map(require);
 let [ host, port ] = (process.argv[2] || 'localhost:80').split(':');
 
 (async () => {
@@ -52,6 +52,13 @@ let [ host, port ] = (process.argv[2] || 'localhost:80').split(':');
     }
 
   }).listen(port, host);
+
+  // Redirect from http port 80 to https
+  http.createServer(function (req, res) {
+      res.writeHead(301, { "Location": "https://" + req.headers['host'] + req.url });
+      res.end();
+  }).listen(80);
+
   console.log(`Listening on ${host}:${port}`);
 
 })();
