@@ -18,6 +18,7 @@ body { transition: opacity 750ms linear; }
   font-size: 180%;
   text-shadow: black 0em 0em 0.3em;
   transition: opacity 500ms linear;
+  overflow: hidden;
 }
 .page > .bg {
   position: fixed;
@@ -64,8 +65,8 @@ body { transition: opacity 750ms linear; }
 .page2 > .bg { background-color: #000000; }
 .page2 > .torah {
   position: absolute;
-  box-sizing: border-box; padding: 20px;
-  width: 50%; height: 54%; left: 25%; top: 23%;
+  box-sizing: border-box; padding: 20px 0;
+  width: 0%; height: 54%; left: 50%; top: 23%;
   background-image: url('torahTile');
   background-size: auto 100%;
   background-position: center;
@@ -78,16 +79,17 @@ body { transition: opacity 750ms linear; }
   text-align: center;
   
   font-size: 70%;
+  transition: left 1000ms ease-in-out, padding 1000ms ease-in-out, width 1000ms ease-in-out;
 }
+.page2.active > .torah { padding: 20px; width: 50%; left: 25%; }
 .page2 > .torah > .scroll {
   position: absolute;
-  width: 27%; height: 180%; top: -40%;
-  background-size: 100% 100%;
-  background-repeat: no-repeat;
+  height: 180%; top: -40%;
   z-index: 1;
+  pointer-events: none;
 }
-.page2 > .torah > .scrollL { background-image: url('torahL'); left: -23%; }
-.page2 > .torah > .scrollR { background-image: url('torahR'); right: -23%; }
+.page2 > .torah > .scrollL { left: -145px; }
+.page2 > .torah > .scrollR { right: -125px; }
 .page2 > .torah > .quote {
   font-size: 120%;
 }
@@ -95,8 +97,12 @@ body { transition: opacity 750ms linear; }
   font-size: 130%;
   margin-bottom: 10px;
 }
-.page2 > .torah > .quote > .english {
+.page2 > .torah > .content {
+  opacity: 0;
+  transition: opacity 500ms linear 1000ms;
 }
+.page2.active > .torah > .content { opacity: 1; }
+
 
 .page3 > .bg { background-color: #000000; }
 .page3 {

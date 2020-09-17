@@ -26,10 +26,12 @@ window.addEventListener('load', () => {
       page.style.opacity = '0';
       page.style.zIndex = '2';
       page.style.pointerEvents = 'none';
+      page.classList.remove('active');
     }
     curPage.style.opacity = '1';
     curPage.style.zIndex = '1';
     curPage.style.pointerEvents = 'all';
+    curPage.classList.add('active');
     
   };
   
