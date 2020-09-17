@@ -14,12 +14,12 @@ body { transition: opacity 750ms linear; overflow: auto; }
 
 .page {
   position: relative;
-  box-shadow: inset 0 0 0 10px #0000ff;
   height: 100vh;
   font-size: 180%;
-  text-shadow: black 0em 0em 0.3em;
+  text-shadow: black 0em 0em 0.3em, black 0em 0em 0.3em;
   transition: opacity 500ms linear;
   overflow: hidden;
+  opacity: 0;
 }
 .page > .bg {
   position: fixed;
@@ -41,14 +41,14 @@ body { transition: opacity 750ms linear; overflow: auto; }
 .page1 > .bg {
   background-image: url('bg');
 }
-.page1 > .quote { width: 80%; }
+.page1 > .quote { width: 80%; max-width: 1000px; }
 .page1 > .quote > .text {
   text-align: left;
 }
 .page1 > .quote > .cite {
   text-align: right;
   font-size: 84%;
-  text-shadow: black 0em 0em 0.3em;
+  text-shadow: black 0em 0em 0.3em, black 0em 0em 0.3em;
   margin-top: 20px; margin-right: 30px;
 }
 .page1 > .mission {
@@ -59,7 +59,7 @@ body { transition: opacity 750ms linear; overflow: auto; }
   box-sizing: border-box;
   margin: 0 20px;
   text-align: center;
-  text-shadow: black 0em 0em 0.2em;
+  text-shadow: black 0em 0em 0.3em, black 0em 0em 0.3em;
   margin-bottom: 10%;
 }
 
@@ -103,14 +103,21 @@ body { transition: opacity 750ms linear; overflow: auto; }
 .page2 > .torah > .content { opacity: 0; transition: opacity 500ms linear 0ms; }
 .page2.active > .torah > .content { opacity: 1; transition: opacity 500ms linear 1000ms; }
 
-
-.page3 > .bg { background-color: #000000; }
 .page3 {
   display: flex;
   flex-flow: column nowrap;
   align-items: center;
   justify-content: space-evenly;
 }
+.page3 > .bg { background-image: url('dafTalmud'); opacity: 0.4; }
+
+.page4 {
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: center;
+  justify-content: space-evenly;
+}
+.page4 > .bg { background-color: #000000; }
 .gematria {
   display: inline-block;
   background-color: rgba(255, 255, 255, 0.1);

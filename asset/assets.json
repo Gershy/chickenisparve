@@ -11,6 +11,7 @@
   "torahL":       [ "image/png",        "asset", "image", "torahL.png" ],
   "torahR":       [ "image/png",        "asset", "image", "torahR.png" ],
   "torahTile":    [ "image/png",        "asset", "image", "torahTile.png" ],
+  "dafTalmud":    [ "image/jpeg",       "asset", "image", "talmudPage.jpg" ],
   
   "font":         [ "font/ttf",         "asset", "font", "cip.ttf" ]
 
