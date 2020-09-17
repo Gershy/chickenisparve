@@ -9,7 +9,7 @@ let createProtocolServer = {
   https: async fn => {
     
     // TLS server on given port (probably 443)
-    let certDir = [ '/', 'etc', 'letsencrypt', 'live', 'chickenisparve.org/' ];
+    let certDir = [ '/', 'etc', 'letsencrypt', 'live', 'chickenisparve.org' ];
     let [ key, cert ] = await Promise.all([
       fs.promises.readFile(path.join(...certDir, 'privkey.pem')),
       fs.promises.readFile(path.join(...certDir, 'fullchain.pem'))
