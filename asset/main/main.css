@@ -62,29 +62,40 @@ body { transition: opacity 750ms linear; }
 }
 
 .page2 > .bg { background-color: #000000; }
-.page2 > .paper {
+.page2 > .torah {
   position: absolute;
-  width: 80%; height: 80%; left: 10%; top: 10%;
-  background-image: url('paperBg');
-  background-size: cover;
+  box-sizing: border-box; padding: 20px;
+  width: 50%; height: 54%; left: 25%; top: 23%;
+  background-image: url('torahTile');
+  background-size: auto 100%;
   background-position: center;
-  background-repeat: no-repeat;
-  z-index: 0;
+  background-repeat: repeat-x;
   
   display: flex;
   flex-flow: column nowrap;
   align-items: center;
   justify-content: space-evenly;
-}
-.page2 > .paper > .quote {
-  font-size: 100%;
   text-align: center;
+  
+  font-size: 70%;
 }
-.page2 > .paper > .quote > .hebrew {
-  font-size: 250%;
-  margin-bottom: 30px;
+.page2 > .torah > .scroll {
+  position: absolute;
+  width: 27%; height: 180%; top: -40%;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  z-index: 1;
 }
-.page2 > .paper > .quote > .english {
+.page2 > .torah > .scrollL { background-image: url('torahL'); left: -23%; }
+.page2 > .torah > .scrollR { background-image: url('torahR'); right: -23%; }
+.page2 > .torah > .quote {
+  font-size: 120%;
+}
+.page2 > .torah > .quote > .hebrew {
+  font-size: 130%;
+  margin-bottom: 10px;
+}
+.page2 > .torah > .quote > .english {
 }
 
 .page3 > .bg { background-color: #000000; }
