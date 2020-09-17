@@ -85,12 +85,16 @@ body { transition: opacity 750ms linear; overflow: auto; }
 .page2.active > .torah { padding: 20px; width: 50%; left: 25%; }
 .page2 > .torah > .scroll {
   position: absolute;
+  display: inline-block;
   height: 180%; top: -40%;
   z-index: 1;
   pointer-events: none;
 }
-.page2 > .torah > .scrollL { left: -145px; }
-.page2 > .torah > .scrollR { right: -125px; }
+.page2 > .torah > .scroll > img { position: relative; height: 100%; }
+.page2 > .torah > .scrollL { left: 0; }
+.page2 > .torah > .scrollL > img { left: -80%; }
+.page2 > .torah > .scrollR { right: 0; }
+.page2 > .torah > .scrollR > img { right: -80%; }
 .page2 > .torah > .quote {
   font-size: 120%;
 }
