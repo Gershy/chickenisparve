@@ -78,7 +78,7 @@ body { transition: opacity 750ms linear; }
   justify-content: space-evenly;
   text-align: center;
   
-  font-size: 70%;
+  font-size: 80%;
   transition: left 1000ms ease-in-out, padding 1000ms ease-in-out, width 1000ms ease-in-out;
 }
 .page2.active > .torah { padding: 20px; width: 50%; left: 25%; }
