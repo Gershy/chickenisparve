@@ -7,9 +7,10 @@ body, html {
   margin: 0; padding: 0;
   color: #ffffff;
   font-family: cip;
+  height: 100%;
 }
-html { background-color: #000000; }
-body { transition: opacity 750ms linear; }
+html { background-color: #000000; overflow: hidden; }
+body { transition: opacity 750ms linear; overflow: auto; }
 
 .page {
   position: relative;
@@ -97,11 +98,10 @@ body { transition: opacity 750ms linear; }
   font-size: 130%;
   margin-bottom: 10px;
 }
-.page2 > .torah > .content {
-  opacity: 0;
-  transition: opacity 500ms linear 1000ms;
-}
-.page2.active > .torah > .content { opacity: 1; }
+
+/* Changing `transition` allows for a delay on fade-in, but no delay on fade-out */
+.page2 > .torah > .content { opacity: 0; transition: opacity 500ms linear 0ms; }
+.page2.active > .torah > .content { opacity: 1; transition: opacity 500ms linear 1000ms; }
 
 
 .page3 > .bg { background-color: #000000; }

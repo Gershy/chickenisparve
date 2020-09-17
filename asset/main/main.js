@@ -14,7 +14,7 @@ window.addEventListener('load', () => {
     
     let { height: bodyHeight } = document.body.getBoundingClientRect();
     
-    let scrollAmt = document.documentElement.scrollTop;
+    let scrollAmt = document.body.scrollTop;
     let viewH = window.innerHeight;
     let pageInd = Math.round(scrollAmt / viewH);
     let focusAmt = 2 * (scrollAmt / viewH - pageInd);
@@ -24,18 +24,18 @@ window.addEventListener('load', () => {
     
     for (let page of pages) {
       page.style.opacity = '0';
-      page.style.zIndex = '2';
+      page.style.zIndex = '-1';
       page.style.pointerEvents = 'none';
       page.classList.remove('active');
     }
     curPage.style.opacity = '1';
-    curPage.style.zIndex = '1';
+    curPage.style.zIndex = '-2';
     curPage.style.pointerEvents = 'all';
     curPage.classList.add('active');
     
   };
   
-  document.addEventListener('scroll', parallax);
+  document.body.addEventListener('scroll', parallax);
   window.addEventListener('resize', parallax);
   parallax();
   
