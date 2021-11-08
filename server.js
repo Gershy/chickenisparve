@@ -38,9 +38,10 @@ let createProtocolServer = {
     let certRenewalDelayMs = 12 * 60 * 60 * 1000; // 12hrs
     (async () => {
       
+      console.log('Cert renewal loop active');
+      
       while (true) {
         
-        console.log('Cert renewal loop active');
         await new Promise(r => setTimeout(r, certRenewalDelayMs));
         
         console.log('Performing cert renewal...');
