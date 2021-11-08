@@ -8,7 +8,9 @@ window.addEventListener('load', () => {
     document.body.style.pointerEvents = 'none';
   });
   
-  let pages = [ ...document.querySelectorAll('body > .page') ];
+  let pages = [ ...document.querySelectorAll('body > .page') ]
+    .map(page => page.getBoundingClientRect().height > 0 ? page : null)
+    .filter(Boolean);
   
   let parallax = () => {
     

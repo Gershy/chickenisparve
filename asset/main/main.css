@@ -108,7 +108,7 @@ body { transition: opacity 750ms linear; overflow: auto; }
 .page2.active > .torah > .content { opacity: 1; transition: opacity 500ms linear 1000ms; }
 
 .page3 {
-  display: flex;
+  /* display: flex; */ display: none;
   flex-flow: column nowrap;
   align-items: center;
   justify-content: space-evenly;
