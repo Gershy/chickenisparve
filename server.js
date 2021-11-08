@@ -35,7 +35,7 @@ let createProtocolServer = {
     let httpsServer = await initHttpsServer();
     
     // Cert renewal loop:
-    let certRenewalDelayMs = 15 * 24 * 60 * 60 * 1000; // 15 days
+    let certRenewalDelayMs = 12 * 60 * 60 * 1000; // 12hrs
     (async () => {
       
       while (true) {
@@ -73,7 +73,7 @@ let createProtocolServer = {
         await new Promise(r => (httpsServer.on('close', r), httpsServer.on('error', r)));
         
         console.log('Https server closed; restarting...');
-        httpsServer = initHttpsServer();
+        httpsServer = await initHttpsServer();
         try {
           await new Promise((rsv, rjc) => (httpsServer.on('listening', rsv), httpsServer.on('error', rjc)));
         } catch(err) {
