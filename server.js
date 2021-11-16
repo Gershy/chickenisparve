@@ -68,7 +68,7 @@ let createProtocolServer = {
         console.log('Cert renewed successfully! Restarting http server...');
         
         // Note errors are tolerated! The error is only real if we can't
-        // restart the server in a moment.
+        // restart the server afterwards
         httpsServer.close();
         console.log('Https server closing...');
         await new Promise(r => (httpsServer.on('close', r), httpsServer.on('error', r)));
@@ -96,7 +96,6 @@ let createProtocolServer = {
 if (!createProtocolServer.hasOwnProperty(protocol)) throw new Error(`Invalid protocol: ${protocol}`);
 
 (async () => {
-  
   
   // Send response
   let serve = (res, status, content, type) => {

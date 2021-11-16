@@ -12,6 +12,10 @@ body, html {
 html { background-color: #000000; overflow: hidden; }
 body { transition: opacity 750ms linear; overflow: auto; }
 
+span.quote::before { content: "“"; }
+span.quote::after { content: "”"; }
+span.larger { font-size: 110%; }
+
 .page {
   position: relative;
   height: 100vh;
@@ -19,8 +23,17 @@ body { transition: opacity 750ms linear; overflow: auto; }
   text-shadow: black 0em 0em 0.3em, black 0em 0em 0.3em;
   transition: opacity 500ms linear;
   overflow: hidden;
+  
   opacity: 0;
+  z-index: -1;
+  pointer-events: none;
 }
+.page.active {
+  opacity: 1;
+  z-index: -2;
+  pointer-events: all;
+}
+body.scrolling > .page { pointer-events: none !important; }
 .page > .bg {
   position: fixed;
   left: 0; top: 0; width: 100vw; height: 100vh;
@@ -108,12 +121,19 @@ body { transition: opacity 750ms linear; overflow: auto; }
 .page2.active > .torah > .content { opacity: 1; transition: opacity 500ms linear 1000ms; }
 
 .page3 {
-  /* display: flex; */ display: none;
+  display: flex;
   flex-flow: column nowrap;
   align-items: center;
   justify-content: space-evenly;
+  height: auto;
+  min-height: 100vh;
 }
 .page3 > .bg { background-image: url('dafTalmud'); opacity: 0.4; }
+.page3 > .content {
+  padding: 30px;
+  font-size: 90%;
+}
+.page3 > .content > .title { font-size: 120%; }
 
 .page4 {
   display: flex;
