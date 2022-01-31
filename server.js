@@ -42,7 +42,6 @@ let createProtocolServer = {
     
     // Cert renewal loop:
     let certRenewalDelayMs = 12 * 60 * 60 * 1000; // 12hrs
-    let delayMs = 1000; // Hacky way to make the first delay shorter
     (async () => {
       
       console.log('Cert renewal loop active');
@@ -50,8 +49,7 @@ let createProtocolServer = {
       
       while (true) {
         
-        await new Promise(r => setTimeout(r, delayMs));
-        delayMs = certRenewalDelayMs;
+        await new Promise(r => setTimeout(r, certRenewalDelayMs));
         
         certRenewLog('Performing cert renewal...');
         
@@ -91,6 +89,7 @@ let createProtocolServer = {
         } finally {
           
           // Step 3
+          certRenewLog('Restarting servers...');
           [ httpsServer, httpServer ] = await Promise.all([ initHttpsServer(), initHttpServer() ]);
           
           // Ensure servers restart successfully (ideally trigger alert
@@ -100,6 +99,7 @@ let createProtocolServer = {
               new Promise((rsv, rjc) => httpsServer.on('listening', rsv) + httpsServer.on('error', rjc)),
               new Promise((rsv, rjc) => httpServer.on('listening', rsv) + httpServer.on('error', rjc))
             ]);
+            certRenewLog('Servers restarted succcessfully!');
           } catch(err) {
             certRenewLog(`Fatal error; unable to restart servers`, err.stack);
             process.exit(0);
@@ -107,7 +107,7 @@ let createProtocolServer = {
           
         }
         
-        certRenewLog('Servers successfully restarted! (Https using renewed tls cert)');
+        certRenewLog('Cert renewal success!');
         
       }
       
