@@ -1,5 +1,6 @@
 let [ http, https, fs, path ] = [ 'http', 'https', 'fs', 'path' ].map(require);
 let [ protocol, host, port ] = (process.argv[2] || 'http://localhost:80').split(/:[/][/]|:/);
+port = parseInt(port, 10);
 console.log('Params:', { protocol, host, port });
 
 let createProtocolServer = {
@@ -9,11 +10,7 @@ let createProtocolServer = {
   },
   https: async fn => {
     
-    // Port 80 redirects to http
-    http.createServer((req, res) => {
-      res.writeHead(301, { Location: `https://${req.headers.host}${req.url}` });
-      res.end();
-    }).listen(80);
+    if (port !== 443) throw new Error('Server must use port 443 for https');
     
     let certDir = [ '/', 'etc', 'letsencrypt', 'live', 'chickenisparve.org' ];
     
@@ -31,65 +28,91 @@ let createProtocolServer = {
       return server;
       
     };
+    let initHttpServer = async () => {
+      
+      // Http simply redirects to http
+      return http.createServer((req, res) => {
+        res.writeHead(301, { Location: `https://${req.headers.host}${req.url}` });
+        res.end();
+      }).listen(80, host);
+      
+    };
     
-    let httpsServer = await initHttpsServer();
+    let [ httpsServer, httpServer ] = await Promise.all([ initHttpsServer(), initHttpServer() ]);
     
     // Cert renewal loop:
     let certRenewalDelayMs = 12 * 60 * 60 * 1000; // 12hrs
+    let delayMs = 1000; // Hacky way to make the first delay shorter
     (async () => {
       
       console.log('Cert renewal loop active');
+      let certRenewLog = str => console.log(str.replace(/\r/g, '').split('\n').map(ln => `CERT: ${ln}`).join('\n'));
       
       while (true) {
         
-        await new Promise(r => setTimeout(r, certRenewalDelayMs));
+        await new Promise(r => setTimeout(r, delayMs));
+        delayMs = certRenewalDelayMs;
         
-        console.log('Performing cert renewal...');
+        certRenewLog('Performing cert renewal...');
         
-        // Two-step process: renew cert, restart https server
+        // The renewal process is:
+        // 1. Release ports 443 and 80 (certbot needs these ports)
+        // 2. Run certbot script
+        // 3. Resume listening on these ports
         
-        let certbotPrc = require('child_process').spawn('certbot', [ 'renew' ]);
-        
-        let stdout = [];
-        let stderr = [];
-        certbotPrc.stdout.on('data', data => stdout.push(data.toString('utf8')));
-        certbotPrc.stderr.on('data', data => stderr.push(data.toString('utf8')));
-        
-        let exitCode = await new Promise((rsv, rjc) => (certbotPrc.on('close', rsv), certbotPrc.on('error', rjc)));
-        
-        console.log('Cert renewal process finished');
-        
-        [ stdout, stderr ] = [ stdout, stderr ].map(arr => arr.join('').split('\n').map(ln => '>>  ' + ln).join('\n'));
-        if (stdout) console.log(`Certbot stdout:\n${stdout}`);
-        if (stderr) console.log(`Certbot stderr:\n${stderr}`);
-        
-        if (exitCode !== 0) throw new Error(`Certbot process had exit-code ${exitCode}`);
-        
-        console.log('Cert renewed successfully! Restarting http server...');
-        
-        // Note errors are tolerated! The error is only real if we can't
-        // restart the server afterwards
-        httpsServer.close();
-        console.log('Https server closing...');
-        await new Promise(r => (httpsServer.on('close', r), httpsServer.on('error', r)));
-        
-        console.log('Https server closed; restarting...');
-        httpsServer = await initHttpsServer();
         try {
-          await new Promise((rsv, rjc) => (httpsServer.on('listening', rsv), httpsServer.on('error', rjc)));
-        } catch(err) {
-          console.log(`Fatal error; unable to restart https server`, err.stack);
-          process.exit(0);
+          
+          // Step 1
+          certRenewLog('Freeing ports 80 and 443...');
+          [ httpsServer, httpServer ].map(server => server.close());
+          await Promise.all([
+            new Promise(r => httpsServer.on('close', r) + httpsServer.on('error', r)),
+            new Promise(r => httpServer.on('close', r) + httpServer.on('error', r))
+          ]);
+          certRenewLog('Freed!');
+          
+          // Step 2
+          certRenewLog('Running certbot script...');
+          let certbotPrc = require('child_process').spawn('certbot', [ 'renew' ]);
+          let stdout = [];
+          let stderr = [];
+          certbotPrc.stdout.on('data', data => stdout.push(data));
+          certbotPrc.stderr.on('data', data => stderr.push(data));
+          let exitCode = await new Promise((rsv, rjc) => certbotPrc.on('close', rsv) + certbotPrc.on('error', rjc));
+          
+          // Show certbot output
+          [ stdout, stderr ] = [ stdout, stderr ].map(arr => Buffer.concat(arr).toString('utf8').split('\n').map(ln => '>>  ' + ln).join('\n'));
+          if (stdout) console.log(`Certbot stdout:\n${stdout}`);
+          if (stderr) console.log(`Certbot stderr:\n${stderr}`);
+          
+          if (exitCode !== 0) throw new Error(`Certbot process had exit-code ${exitCode}`);
+          certRenewLog('Certbot script complete!');
+          
+        } finally {
+          
+          // Step 3
+          [ httpsServer, httpServer ] = await Promise.all([ initHttpsServer(), initHttpServer() ]);
+          
+          // Ensure servers restart successfully (ideally trigger alert
+          // if this fails)
+          try {
+            await Promise.all([
+              new Promise((rsv, rjc) => httpsServer.on('listening', rsv) + httpsServer.on('error', rjc)),
+              new Promise((rsv, rjc) => httpServer.on('listening', rsv) + httpServer.on('error', rjc))
+            ]);
+          } catch(err) {
+            certRenewLog(`Fatal error; unable to restart servers`, err.stack);
+            process.exit(0);
+          }
+          
         }
         
-        console.log(`Https server successfully restarted using renewed tls cert!`);
+        certRenewLog('Servers successfully restarted! (Https using renewed tls cert)');
         
       }
       
     })()
-      .catch(err => {
-        console.log('Cert renewal failed (renewal loop exited)', err.stack);
-      });
+      .catch(err => console.log('Cert renewal failed (renewal loop exited)', err.stack));
     
   }
 };
