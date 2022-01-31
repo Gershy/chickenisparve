@@ -122,7 +122,11 @@ if (!createProtocolServer.hasOwnProperty(protocol)) throw new Error(`Invalid pro
   
   // Send response
   let serve = (res, status, content, type) => {
-    res.writeHead(status, { 'Content-Type': type, 'Content-Length': Buffer.byteLength(content) });
+    res.writeHead(status, {
+      'Content-Type': type,
+      'Content-Length': Buffer.byteLength(content),
+      'Cache-Control': `max-age=${1 * 60 * 60}`
+    });
     res.end(content);
   };
   
@@ -138,6 +142,7 @@ if (!createProtocolServer.hasOwnProperty(protocol)) throw new Error(`Invalid pro
     return fileCache.get(fp);
   };
   
+  let assets = null;
   await createProtocolServer[protocol](async (req, res) => {
     
     let reqMsg = [];
@@ -151,8 +156,14 @@ if (!createProtocolServer.hasOwnProperty(protocol)) throw new Error(`Invalid pro
     
     try {
       
-      let servables = JSON.parse(await readFile('asset', 'assets.json'));
-      let [ contentType=null, ...fp ] = servables[req.url.slice(1)] || [];
+      // Current content of assets.json stays valid for 1min
+      if (assets === null) {
+        assets = JSON.parse(await readFile('asset', 'assets.json'));
+        setTimeout(() => assets = null, 1 * 60 * 1000);
+      }
+      
+      let assetName = req.url.slice(1);
+      let [ contentType=null, ...fp ] = assets.hasOwnProperty(assetName) ? assets[assetName] : [];
       if (!contentType) throw new Error(`Unknown asset: ${req.url}`);
       serveReq(res, 200, await readFile(...fp), contentType);
       
