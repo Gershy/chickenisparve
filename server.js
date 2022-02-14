@@ -23,13 +23,25 @@ let createProtocolServer = {
     let initHttpsServer = async () => {
       
       // TLS server on given port (probably 443)
+      console.log('Init https...');
       let [ key, cert ] = await Promise.all([
         fs.promises.readFile(path.join(...certDir, 'privkey.pem')),
         fs.promises.readFile(path.join(...certDir, 'fullchain.pem'))
       ]);
+      console.log('Read files...');
       
       let server = https.createServer({ key, cert }, fn);
+      
+      console.log('Created server...');
+      
       server.listen(port, host);
+      
+      await new Promise((rsv, rjc) => {
+        server.on('listening', rsv);
+        server.on('error', rjc);
+      });
+      
+      console.log('Listening!!');
       
       return server;
       
@@ -37,10 +49,17 @@ let createProtocolServer = {
     let initHttpServer = async () => {
       
       // Http simply redirects to http
-      return http.createServer((req, res) => {
+      let server = http.createServer((req, res) => {
         res.writeHead(301, { Location: `https://${req.headers.host}${req.url}` });
         res.end();
       }).listen(80, host);
+      
+      await new Promise((rsv, rjc) => {
+        server.on('listening', rsv);
+        server.on('error', rjc);
+      });
+      
+      return server;
       
     };
     
@@ -76,6 +95,7 @@ let createProtocolServer = {
           ]);
           [ httpsServer, httpServer ].map(server => server.close());
           await closePromise;
+          [ httpsServer, httpServer ] = [ null, null ];
           certRenewLog('Freed!');
           
           // Step 2
@@ -98,17 +118,14 @@ let createProtocolServer = {
         } finally {
           
           // Step 3
-          certRenewLog('Restarting servers...');
-          let restartPromise = Promise.all([
-            new Promise((rsv, rjc) => httpsServer.on('listening', rsv) + httpsServer.on('error', rjc)),
-            new Promise((rsv, rjc) => httpServer.on('listening', rsv) + httpServer.on('error', rjc))
-          ]);
-          [ httpsServer, httpServer ] = await Promise.all([ initHttpsServer(), initHttpServer() ]);
-          
-          // Ensure servers restart successfully (ideally trigger alert
-          // if this fails)
           try {
-            await restartPromise;
+            // Ensure servers restart successfully (ideally trigger alert
+            // if this fails)
+            certRenewLog('Restarting servers...');
+            [ httpsServer, httpServer ] = await Promise.all([
+              initHttpsServer().then(() => console.log('GOTTT HTTPS')),
+              initHttpServer().then(() => console.log('GOTTT HTTP'))
+            ]);
             certRenewLog('Servers restarted successfully!');
           } catch(err) {
             certRenewLog(`Fatal error; unable to restart servers`, err.stack);
