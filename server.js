@@ -1,7 +1,13 @@
 let [ http, https, fs, path ] = [ 'http', 'https', 'fs', 'path' ].map(require);
-let [ protocol, host, port ] = (process.argv[2] || 'http://localhost:80').split(/:[/][/]|:/);
+
+let argv = process.argv[2] || 'http://localhost:80';
+let [ hosting, ...more ] = argv.split(' ');
+let args = more.join(' ');
+
+let [ protocol, host, port ] = hosting.split(/:[/][/]|:|[ ]/);
 port = parseInt(port, 10);
-console.log('Params:', { protocol, host, port });
+args = args ? eval(`(${args})`) : null;
+console.log('Params:', { protocol, host, port, args });
 
 let createProtocolServer = {
   http: async fn => {
@@ -42,6 +48,7 @@ let createProtocolServer = {
     
     // Cert renewal loop:
     let certRenewalDelayMs = 12 * 60 * 60 * 1000; // 12hrs
+    let delay = (args?.renewImmediately ?? false) ? 500 : certRenewalDelayMs;
     (async () => {
       
       console.log('Cert renewal loop active');
@@ -49,7 +56,8 @@ let createProtocolServer = {
       
       while (true) {
         
-        await new Promise(r => setTimeout(r, certRenewalDelayMs));
+        await new Promise(r => setTimeout(r, delay));
+        delay = certRenewalDelayMs;
         
         certRenewLog('Performing cert renewal...');
         
@@ -62,11 +70,12 @@ let createProtocolServer = {
           
           // Step 1
           certRenewLog('Freeing ports 80 and 443...');
-          [ httpsServer, httpServer ].map(server => server.close());
-          await Promise.all([
+          let closePromise = Promise.all([
             new Promise(r => httpsServer.on('close', r) + httpsServer.on('error', r)),
             new Promise(r => httpServer.on('close', r) + httpServer.on('error', r))
           ]);
+          [ httpsServer, httpServer ].map(server => server.close());
+          await closePromise;
           certRenewLog('Freed!');
           
           // Step 2
