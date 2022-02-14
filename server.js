@@ -99,16 +99,17 @@ let createProtocolServer = {
           
           // Step 3
           certRenewLog('Restarting servers...');
+          let restartPromise = Promise.all([
+            new Promise((rsv, rjc) => httpsServer.on('listening', rsv) + httpsServer.on('error', rjc)),
+            new Promise((rsv, rjc) => httpServer.on('listening', rsv) + httpServer.on('error', rjc))
+          ]);
           [ httpsServer, httpServer ] = await Promise.all([ initHttpsServer(), initHttpServer() ]);
           
           // Ensure servers restart successfully (ideally trigger alert
           // if this fails)
           try {
-            await Promise.all([
-              new Promise((rsv, rjc) => httpsServer.on('listening', rsv) + httpsServer.on('error', rjc)),
-              new Promise((rsv, rjc) => httpServer.on('listening', rsv) + httpServer.on('error', rjc))
-            ]);
-            certRenewLog('Servers restarted succcessfully!');
+            await restartPromise;
+            certRenewLog('Servers restarted successfully!');
           } catch(err) {
             certRenewLog(`Fatal error; unable to restart servers`, err.stack);
             process.exit(0);
