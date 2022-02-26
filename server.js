@@ -77,38 +77,36 @@ let createProtocolServer = {
           // Step 1
           certRenewLog('Freeing ports 80 and 443...');
           
-          while (true) {
+          // Get promise await servers closing, and close servers...
+          let closePromise = Promise.all([
             
-            let closePromise = Promise.all([
-              
-              new Promise((rsv, rjc) => httpsServer.on('close', rsv) + httpsServer.on('error', rjc))
-                .then(() => (certRenewLog('Closed httpsServer'), httpsServer = null)),
-              
-              new Promise((rsv, rjc) => httpServer.on('close', rsv) + httpServer.on('error', rjc))
-                .then(() => (certRenewLog('Closed httpServer'), httpServer = null))
-              
-            ]);
-            [ httpsServer, httpServer ].forEach(server => server.close());
+            new Promise((rsv, rjc) => httpsServer.on('close', rsv) + httpsServer.on('error', rjc))
+              .then(() => (certRenewLog('Closed httpsServer'), httpsServer = null)),
             
-            let timeout = null;
-            await new Promise((rsv, rjc) => {
-              closePromise.then(rsv);
-              closePromise.catch(rjc);
-              timeout = setTimeout(
-                () => {
-                  let unclosed = [];
-                  if (httpsServer) unclosed.push('httpsServer');
-                  if (httpServer) unclosed.push('httpServer');
-                  rjc(new Error(`Couldn't close [${unclosed.join(', ')}] quickly`));
-                },
-                3 * 60 * 1000
-              )
-            });
-            clearTimeout(timeout);
+            new Promise((rsv, rjc) => httpServer.on('close', rsv) + httpServer.on('error', rjc))
+              .then(() => (certRenewLog('Closed httpServer'), httpServer = null))
             
-            certRenewLog('Freed!');
-            
-          }
+          ]);
+          [ httpsServer, httpServer ].forEach(server => server.close());
+          
+          // Wait for server-close-promise to resolve, or timeout
+          let timeout = null;
+          await new Promise((rsv, rjc) => {
+            closePromise.then(rsv);
+            closePromise.catch(rjc);
+            timeout = setTimeout(
+              () => {
+                let unclosed = [];
+                if (httpsServer) unclosed.push('httpsServer');
+                if (httpServer) unclosed.push('httpServer');
+                rjc(new Error(`Couldn't close [${unclosed.join(', ')}] quickly`));
+              },
+              3 * 60 * 1000
+            )
+          });
+          clearTimeout(timeout);
+          
+          certRenewLog('Freed!');
           
           
           // Step 2
