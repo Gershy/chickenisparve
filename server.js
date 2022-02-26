@@ -76,14 +76,40 @@ let createProtocolServer = {
           
           // Step 1
           certRenewLog('Freeing ports 80 and 443...');
-          let closePromise = Promise.all([
-            new Promise(r => httpsServer.on('close', r) + httpsServer.on('error', r)),
-            new Promise(r => httpServer.on('close', r) + httpServer.on('error', r))
-          ]);
-          [ httpsServer, httpServer ].map(server => server.close());
-          await closePromise;
-          [ httpsServer, httpServer ] = [ null, null ];
-          certRenewLog('Freed!');
+          
+          while (true) {
+            
+            let closePromise = Promise.all([
+              
+              new Promise((rsv, rjc) => httpsServer.on('close', rsv) + httpsServer.on('error', rjc))
+                .then(() => (certRenewLog('Closed httpsServer'), httpsServer = null)),
+              
+              new Promise((rsv, rjc) => httpServer.on('close', rsv) + httpServer.on('error', rjc))
+                .then(() => (certRenewLog('Closed httpServer'), httpServer = null))
+              
+            ]);
+            [ httpsServer, httpServer ].forEach(server => server.close());
+            
+            let timeout = null;
+            await new Promise((rsv, rjc) => {
+              closePromise.then(rsv);
+              closePromise.catch(rjc);
+              timeout = setTimeout(
+                () => {
+                  let unclosed = [];
+                  if (httpsServer) unclosed.push('httpsServer');
+                  if (httpServer) unclosed.push('httpServer');
+                  rjc(new Error(`Couldn't close [${unclosed.join(', ')}] quickly`));
+                },
+                3 * 60 * 1000
+              )
+            });
+            clearTimeout(timeout);
+            
+            certRenewLog('Freed!');
+            
+          }
+          
           
           // Step 2
           certRenewLog('Running certbot script...');
