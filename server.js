@@ -69,7 +69,7 @@ let createProtocolServer = {
     let [ httpsServer, httpServer ] = await Promise.all([ initHttpsServer(), initHttpServer() ]);
     
     // Cert renewal loop:
-    let certRenewalDelayMs = 12 * 60 * 60 * 1000; // 12hrs
+    let certRenewalDelayMs = args?.certRenewalDelayMs ?? 12 * 60 * 60 * 1000; // 12hrs
     let delay = (args?.renewImmediately ?? false) ? 500 : certRenewalDelayMs;
     (async () => {
       
