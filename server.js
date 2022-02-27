@@ -28,6 +28,7 @@ let createProtocolServer = {
         socket.once('close', () => sockets.delete(socket));
       });
       server.destroy = () => {
+        console.log(`Destroying ${sockets.size} socket(s) for ${server.constructor.name}`);
         for (let socket of sockets) socket.destroy();
         sockets.clear();
         return new Promise((rsv, rjc) => server.close(err => err ? rjc(err) : rsv()));
