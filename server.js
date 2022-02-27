@@ -20,6 +20,21 @@ let createProtocolServer = {
     
     let certDir = [ '/', 'etc', 'letsencrypt', 'live', 'chickenisparve.org' ];
     
+    let destroyableServer = server => {
+      
+      let sockets = new Set();
+      server.on('connection', socket => {
+        sockets.add(socket);
+        socket.once('close', () => sockets.delete(socket));
+      });
+      server.destroy = () => {
+        for (let socket of sockets) socket.destroy();
+        sockets.clear();
+        return new Promise((rsv, rjc) => server.close(err => err ? rjc(err) : rsv()));
+      };
+      return server;
+      
+    };
     let initHttpsServer = async () => {
       
       // TLS server on given port (probably 443)
@@ -28,9 +43,9 @@ let createProtocolServer = {
         fs.promises.readFile(path.join(...certDir, 'fullchain.pem'))
       ]);
       
-      let server = https.createServer({ key, cert }, fn);
-      server.listen(port, host);
+      let server = destroyableServer(https.createServer({ key, cert }, fn));
       
+      server.listen(port, host);
       await new Promise((rsv, rjc) => { server.on('listening', rsv); server.on('error', rjc); });
       
       return server;
@@ -39,11 +54,12 @@ let createProtocolServer = {
     let initHttpServer = async () => {
       
       // Http simply redirects to http
-      let server = http.createServer((req, res) => {
+      let server = destroyableServer(http.createServer((req, res) => {
         res.writeHead(301, { Location: `https://${req.headers.host}${req.url}` });
         res.end();
-      }).listen(80, host);
+      }));
       
+      server.listen(80, host);
       await new Promise((rsv, rjc) => { server.on('listening', rsv); server.on('error', rjc); });
       
       return server;
@@ -77,37 +93,9 @@ let createProtocolServer = {
           // Step 1
           certRenewLog('Freeing ports 80 and 443...');
           
-          // Get promise await servers closing, and close servers...
-          let closePromise = Promise.all([
-            
-            new Promise((rsv, rjc) => httpsServer.on('close', rsv) + httpsServer.on('error', rjc))
-              .then(() => (certRenewLog('Closed httpsServer'), httpsServer = null)),
-            
-            new Promise((rsv, rjc) => httpServer.on('close', rsv) + httpServer.on('error', rjc))
-              .then(() => (certRenewLog('Closed httpServer'), httpServer = null))
-            
-          ]);
-          [ httpsServer, httpServer ].forEach(server => server.close());
-          
-          // Wait for server-close-promise to resolve, or timeout
-          let timeout = null;
-          await new Promise((rsv, rjc) => {
-            closePromise.then(rsv);
-            closePromise.catch(rjc);
-            timeout = setTimeout(
-              () => {
-                let unclosed = [];
-                if (httpsServer) unclosed.push('httpsServer');
-                if (httpServer) unclosed.push('httpServer');
-                rjc(new Error(`Couldn't close [${unclosed.join(', ')}] quickly`));
-              },
-              3 * 60 * 1000
-            )
-          });
-          clearTimeout(timeout);
-          
+          let closePromise = Promise.all([ httpServer, httpsServer ].map(server => server.destroy()));
+          [ httpServer, httpsServer ] = [ null, null ];
           certRenewLog('Freed!');
-          
           
           // Step 2
           certRenewLog('Running certbot script...');
@@ -130,14 +118,18 @@ let createProtocolServer = {
           
           // Step 3
           try {
+            
             // Ensure servers restart successfully (ideally trigger alert
             // if this fails)
             certRenewLog('Restarting servers...');
             [ httpsServer, httpServer ] = await Promise.all([ initHttpsServer(), initHttpServer() ]);
             certRenewLog('Servers restarted successfully!');
+            
           } catch(err) {
+            
             certRenewLog(`Fatal error; unable to restart servers`, err.stack);
             process.exit(0);
+            
           }
           
         }
