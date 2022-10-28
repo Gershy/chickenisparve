@@ -1,14 +1,5 @@
 let [ http, https, fs, path ] = [ 'http', 'https', 'fs', 'path' ].map(require);
 
-let argv = process.argv[2] || 'http://localhost:80';
-let [ hosting, ...more ] = argv.split(' ');
-let args = more.join(' ');
-
-let [ protocol, host, port ] = hosting.split(/:[/][/]|:|[ ]/);
-port = parseInt(port, 10);
-args = args ? eval(`(${args})`) : null;
-console.log('Params:', { protocol, host, port, args });
-
 let createProtocolServer = {
   http: async fn => {
     let server = http.createServer(fn);
@@ -18,7 +9,9 @@ let createProtocolServer = {
     
     if (port !== 443) throw new Error('Server must use port 443 for https');
     
-    let certDir = [ '/', 'etc', 'letsencrypt', 'live', 'chickenisparve.org' ];
+    let certDir = args?.httpsCertPath ?? null;
+    if (certDir?.constructor === String) certDir = certDir.split(',');
+    if (certDir?.constructor !== Array) throw new Error(`Array "httpsCertPath" is required for https server`);
     
     let destroyableServer = server => {
       
@@ -147,6 +140,22 @@ let createProtocolServer = {
 if (!createProtocolServer.hasOwnProperty(protocol)) throw new Error(`Invalid protocol: ${protocol}`);
 
 (async () => {
+  
+  let argv = process.argv[2] || 'http://localhost:80';
+  let [ hosting, ...more ] = argv.split(' ');
+  
+  let [ protocol, host, port ] = hosting.split(/:[/][/]|:|[ ]/);
+  port = parseInt(port, 10);
+  
+  let args = more.join(' ');
+  args = args ? eval(`(${args})`) : null;
+  try {
+    let moreArgs = JSON.parse(await fs.promises.readFile(path.join(__dirname, 'args.js')));
+    args = { ...moreArgs, ...args };
+  } catch(err) {
+    console.log(`No arguments defined in args.js`);
+  }
+  console.log('Params:', { protocol, host, port, args });
   
   // Send response
   let serve = (res, status, content, type) => {
